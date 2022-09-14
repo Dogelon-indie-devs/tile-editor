@@ -8,6 +8,10 @@ uses
   System.UITypes,
   System.Classes,
   System.Variants,
+  System.UIConsts,
+  System.JSON,
+  System.Math.Vectors,
+
   FMX.Types,
   FMX.Controls,
   FMX.Forms,
@@ -20,12 +24,11 @@ uses
   FMX.EditBox,
   FMX.SpinBox,
   FMX.Viewport3D,
-  System.Math.Vectors,
   FMX.Controls3D,
   FMX.Objects3D,
   FMX.Types3D,
   FMX.ListBox,
-  System.UIConsts, FMX.MaterialSources;
+  FMX.MaterialSources;
 
 type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
 TTileTypeHelper = record helper for TTileType
@@ -64,6 +67,9 @@ type
     Switch1: TSwitch;
     Label_camera: TLabel;
     Button2: TButton;
+    Button_save: TButton;
+    Button_load: TButton;
+    SaveDialog1: TSaveDialog;
     procedure Viewport3D1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure Viewport3D1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
     procedure ColorPicker1Click(Sender: TObject);
@@ -73,6 +79,7 @@ type
       Shift: TShiftState);
     procedure Button2Click(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
+    procedure Button_saveClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -264,6 +271,63 @@ procedure TForm1.Button2Click(Sender: TObject);
 begin
   Dummy1.RotationAngle.X := 0;
   Dummy1.RotationAngle.Y := 0;
+end;
+
+procedure StringToFile(str,filename:string; append:boolean=false);
+begin
+  var work:= TStringList.Create;
+  try
+    if append then
+      begin
+        if fileExists(filename) then
+          work.LoadFromFile(filename);
+        work.Add(str);
+      end
+    else
+      work.Text:= str;
+
+    try
+      work.SaveToFile(filename,TEncoding.UTF8);
+    except
+    end;
+
+  finally
+    work.Free;
+  end;
+end;
+
+function Export_layout_as_json: string;
+begin
+  var JSONObject := TJSONObject.Create;
+  try
+    JSONObject.AddPair('RoomName','Lounge');
+    var DataArray := TJSONArray.Create;
+    for var x := 0 to tilecount_x-1 do
+    for var y := 0 to tilecount_y-1 do
+      begin
+        var tile:= tiles[x,y];
+        var DataObject := TJSONObject.Create;
+        DataObject.AddPair('X', tile.x.ToString);
+        DataObject.AddPair('Y', tile.y.ToString);
+        DataObject.AddPair('tileType', tile.tileType.ToString);
+        DataObject.AddPair('materialColor', AlphaColorToString(tile.material.Color));
+        DataObject.AddPair('walkable', tile.walkable.ToString);
+        DataArray.AddElement(DataObject);
+      end;
+    JSONObject.AddPair('tiles',DataArray);
+
+  finally
+    result:= JSONObject.ToString;
+    JSONObject.Free;
+  end;
+end;
+
+procedure TForm1.Button_saveClick(Sender: TObject);
+begin
+  var json:= Export_layout_as_json;
+  SaveDialog1.InitialDir:= GetCurrentDir;
+  if SaveDialog1.Execute then
+    StringToFile(json,'room_lounge.json');
 end;
 
 procedure TForm1.ColorPicker1Click(Sender: TObject);

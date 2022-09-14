@@ -25,7 +25,7 @@ object Form1: TForm1
       Position.X = 5.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 190.000000000000000000
-      Size.Height = 84.000000000000000000
+      Size.Height = 120.000000000000000000
       Size.PlatformDefault = False
       Text = 'Room generator'
       TabOrder = 0
@@ -65,13 +65,26 @@ object Form1: TForm1
         Size.Height = 22.000000000000000000
         Size.PlatformDefault = False
       end
+      object Button_save: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 80.000000000000000000
+        TabOrder = 42
+        Text = 'Save'
+        OnClick = Button_saveClick
+      end
+      object Button_load: TButton
+        Position.X = 96.000000000000000000
+        Position.Y = 80.000000000000000000
+        TabOrder = 41
+        Text = 'Load'
+      end
     end
     object GroupBox2: TGroupBox
       Align = Top
       Margins.Left = 5.000000000000000000
       Margins.Right = 5.000000000000000000
       Position.X = 5.000000000000000000
-      Position.Y = 89.000000000000000000
+      Position.Y = 125.000000000000000000
       Size.Width = 190.000000000000000000
       Size.Height = 200.000000000000000000
       Size.PlatformDefault = False
@@ -141,7 +154,7 @@ object Form1: TForm1
     end
     object GroupBox3: TGroupBox
       Align = Top
-      Position.Y = 289.000000000000000000
+      Position.Y = 325.000000000000000000
       Size.Width = 200.000000000000000000
       Size.Height = 88.000000000000000000
       Size.PlatformDefault = False
@@ -214,5 +227,12 @@ object Form1: TForm1
         Depth = 1.000000000000000000
       end
     end
+  end
+  object SaveDialog1: TSaveDialog
+    DefaultExt = 'json'
+    FileName = 'room_lounge'
+    Title = 'Save the room schematic'
+    Left = 640
+    Top = 424
   end
 end
