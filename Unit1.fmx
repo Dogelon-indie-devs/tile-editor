@@ -9,4 +9,76 @@ object Form1: TForm1
   FormFactor.Height = 480
   FormFactor.Devices = [Desktop]
   DesignerMasterStyle = 0
+  object Panel1: TPanel
+    Align = Right
+    Position.X = 600.000000000000000000
+    Size.Width = 200.000000000000000000
+    Size.Height = 600.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object GroupBox1: TGroupBox
+      Align = Top
+      Margins.Left = 5.000000000000000000
+      Margins.Top = 5.000000000000000000
+      Margins.Right = 5.000000000000000000
+      Margins.Bottom = 5.000000000000000000
+      Position.X = 5.000000000000000000
+      Position.Y = 5.000000000000000000
+      Size.Width = 190.000000000000000000
+      Size.Height = 84.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Room generator'
+      TabOrder = 0
+      object SpinBox1: TSpinBox
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 39
+        Cursor = crIBeam
+        DecimalDigits = 0
+        Min = 4.000000000000000000
+        Value = 10.000000000000000000
+        Position.X = 16.000000000000000000
+        Position.Y = 24.000000000000000000
+        Size.Width = 81.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object Button1: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 48.000000000000000000
+        Size.Width = 162.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 40
+        Text = 'Generate'
+      end
+      object SpinBox2: TSpinBox
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 38
+        Cursor = crIBeam
+        DecimalDigits = 0
+        Min = 4.000000000000000000
+        Value = 10.000000000000000000
+        Position.X = 96.000000000000000000
+        Position.Y = 24.000000000000000000
+        Size.Width = 81.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+    end
+  end
+  object ColorPicker1: TColorPicker
+    Position.X = 750.000000000000000000
+    Position.Y = 400.000000000000000000
+    Size.Width = 33.000000000000000000
+    Size.Height = 185.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+  end
+  object Viewport3D1: TViewport3D
+    Align = Client
+    Color = claTeal
+    Size.Width = 600.000000000000000000
+    Size.Height = 600.000000000000000000
+    Size.PlatformDefault = False
+  end
 end
