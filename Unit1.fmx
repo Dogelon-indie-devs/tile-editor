@@ -96,10 +96,10 @@ object Form1: TForm1
         TabOrder = 39
         Text = 'Walkable'
       end
-      object Label1: TLabel
+      object Label_last_tile: TLabel
         Position.X = 16.000000000000000000
         Position.Y = 24.000000000000000000
-        Text = 'Tile X=0, Y=0'
+        Text = 'Last tile X=0, Y=0'
         TabOrder = 40
       end
       object ComboBox2: TComboBox
@@ -141,7 +141,7 @@ object Form1: TForm1
       Align = Top
       Position.Y = 289.000000000000000000
       Size.Width = 200.000000000000000000
-      Size.Height = 64.000000000000000000
+      Size.Height = 88.000000000000000000
       Size.PlatformDefault = False
       Text = 'Mouse control'
       TabOrder = 2
@@ -157,6 +157,13 @@ object Form1: TForm1
         Position.Y = 28.000000000000000000
         Text = 'Moving camera'
         TabOrder = 39
+      end
+      object Button2: TButton
+        Position.X = 16.000000000000000000
+        Position.Y = 58.000000000000000000
+        TabOrder = 40
+        Text = 'Reset camera'
+        OnClick = Button2Click
       end
     end
   end
@@ -176,7 +183,7 @@ object Form1: TForm1
       LineColor = x50505050
       Position.X = 0.500000000000000000
       Position.Y = 0.500000000000000000
-      Position.Z = 0.500000000000000000
+      Position.Z = -0.500000000000000000
       Width = 20.000000000000000000
       Height = 20.000000000000000000
       Depth = 0.001000000047497451

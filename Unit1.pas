@@ -43,12 +43,13 @@ type
     GroupBox2: TGroupBox;
     ComboBox1: TComboBox;
     CheckBox1: TCheckBox;
-    Label1: TLabel;
+    Label_last_tile: TLabel;
     ComboBox2: TComboBox;
     Edit_tile_color: TEdit;
     GroupBox3: TGroupBox;
     Switch1: TSwitch;
     Label_camera: TLabel;
+    Button2: TButton;
     procedure Viewport3D1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure Viewport3D1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
     procedure ColorPicker1Click(Sender: TObject);
@@ -56,12 +57,14 @@ type
     procedure Switch1Switch(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
     { Public declarations }
     procedure Generate_room;
     procedure Move_camera(X,Y: single);
+    procedure Apply_style_to_tile(Sender: TObject);
   end;
 
 type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
@@ -81,12 +84,29 @@ var
   fDown: TPointF;
   selecting_tiles: boolean;
   tiles: array of array of TTile;
+  tilecount_x, tilecount_y: integer;
 
 implementation
 
 {$R *.fmx}
 
+procedure TForm1.Apply_style_to_tile(Sender: TObject);
+var x,y: integer;
+begin
+  with (Sender As TCustomMesh) do
+    begin
+      x:= tag div tilecount_x;
+      y:= tag mod tilecount_x;
+    end;
+
+  Label_last_tile.Text:= 'Last tile: X='+x.ToString+', Y='+y.ToString;
+
+  var tile:= tiles[x,y];
+  tile.material.Color:= StringToAlphaColor(Edit_tile_color.Text);
+end;
+
 procedure TForm1.Generate_room;
+var tile_index: integer;
 
   function Create_tile(x,y: integer; tileType: TTileType): TTile;
   begin
@@ -127,18 +147,22 @@ procedure TForm1.Generate_room;
     Result.tileContent.Visible:= true;
     Result.tileContent.HitTest:= selecting_tiles;
     Result.tileContent.Projection:= TProjection.Camera;
-    Result.tileContent.Name:= 'tile'+X.ToString+Y.ToString;
     Result.tileContent.Parent:= Viewport3D1;
+    Result.tileContent.Name:= 'tile'+X.ToString+Y.ToString;
+    Result.tileContent.Tag:= tile_index;
+
+    Result.tileContent.OnClick:= Apply_style_to_tile;
 
     Result.walkable:= tileType=TTileType.TTT_Floor;
   end;
 
 begin
-  var tilecount_x:= round(SpinBox_room_size_x.Value);
-  var tilecount_y:= round(SpinBox_room_size_y.Value);
+  tilecount_x:= round(SpinBox_room_size_x.Value);
+  tilecount_y:= round(SpinBox_room_size_y.Value);
 
   SetLength(tiles,tilecount_x,tilecount_y);
 
+  tile_index:= 0;
   for var x := 0 to tilecount_x-1 do
   for var y := 0 to tilecount_y-1 do
     begin
@@ -148,14 +172,26 @@ begin
         tileType:= TTT_Wall;
 
       tiles[x,y]:= Create_tile(x,y,tileType);
+      inc(tile_index);
     end;
 
+  Dummy1.Position.X:= round(tilecount_x/2);
+  Dummy1.Position.Y:= round(tilecount_y/2);
+
   Viewport3D1.Repaint;
+end;
+
+procedure Toggle_hittest_for_all_tiles;
+begin
+  for var x := 0 to tilecount_x-1 do
+  for var y := 0 to tilecount_y-1 do
+    tiles[x,y].tileContent.HitTest:= selecting_tiles;
 end;
 
 procedure TForm1.Switch1Switch(Sender: TObject);
 begin
   selecting_tiles:= Switch1.IsChecked;
+  Toggle_hittest_for_all_tiles;
 
   if selecting_tiles then
     Label_camera.Text:= 'Selecting tiles'
@@ -165,7 +201,17 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
+  Button1.Enabled:= false;
+  SpinBox_room_size_x.Enabled:= false;
+  SpinBox_room_size_y.Enabled:= false;
+
   Generate_room;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  Dummy1.RotationAngle.X := 0;
+  Dummy1.RotationAngle.Y := 0;
 end;
 
 procedure TForm1.ColorPicker1Click(Sender: TObject);
@@ -178,6 +224,7 @@ procedure TForm1.Move_camera(X,Y: single);
 begin
   Dummy1.Position.X:= Dummy1.Position.X + X;
   Dummy1.Position.Y:= Dummy1.Position.Y - Y;
+  Camera1.Position.Y:= 0;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
@@ -197,14 +244,6 @@ procedure TForm1.Viewport3D1MouseMove(Sender: TObject; Shift: TShiftState; X, Y:
 begin
   if not selecting_tiles then
     begin
-      if ssLeft in Shift then
-        with Dummy1 do
-          begin
-            Position.X := Position.X - (X - fDown.X);
-            Position.Y := Position.Y - (Y - fDown.Y);
-            fDown := PointF(X, Y);
-          end;
-
       if ssRight in Shift then
         with Dummy1 do
           begin
