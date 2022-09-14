@@ -96,6 +96,33 @@ implementation
 
 {$R *.fmx}
 
+procedure Destroy_tile(tile_index: integer);
+begin
+  var x:= tile_index div tilecount_x;
+  var y:= tile_index mod tilecount_x;
+
+  var tile:= tiles[x,y];
+  tile.tileContent.Free;
+  tile.material.Free;
+  tile.Free;
+  tiles[x,y]:= nil;
+end;
+
+function Is_same_tiletype_as_selected(tile_index: integer): boolean;
+begin
+  var x:= tile_index div tilecount_x;
+  var y:= tile_index mod tilecount_x;
+  var existing_tile_type:= tiles[x,y].tileType;
+  var selected_tile_type:= TTileType.FromString(Form1.ComboBox1.Selected.Text);
+
+  result:= existing_tile_type = selected_tile_type;
+end;
+
+procedure Recolor_material(material: TColorMaterialSource; color:TAlphaColor);
+begin
+  material.Color:= color;
+end;
+
 procedure TForm1.Apply_style_to_tile(Sender: TObject);
 var x,y: integer;
 begin
@@ -107,8 +134,20 @@ begin
 
   Label_last_tile.Text:= 'Last tile: X='+x.ToString+', Y='+y.ToString;
 
-  var tile:= tiles[x,y];
-  tile.material.Color:= StringToAlphaColor(Edit_tile_color.Text);
+  var clicked_tile:= tiles[x,y];
+  var tile_index:= clicked_tile.tileContent.Tag;
+
+  if Is_same_tiletype_as_selected(tile_index) then
+    begin
+      var new_color:= StringToAlphaColor(Edit_tile_color.Text);
+      Recolor_material(clicked_tile.material,new_color);
+    end
+  else
+    begin
+      Destroy_tile(tile_index);
+      var selected_tile_type:= TTileType.FromString(Form1.ComboBox1.Selected.Text);
+      tiles[x,y]:= Create_tile(tile_index,selected_tile_type);
+    end;
 end;
 
 function TForm1.Create_tile_object(tileType: TTileType): TCustomMesh;
@@ -162,31 +201,10 @@ begin
   Result.tileContent.Position.X:= result.X;
   Result.tileContent.Position.Y:= result.Y;
   Result.tileContent.Position.Z:= 0;
-  Result.tileContent.MaterialSource:= Create_tile_material(tileType);
+  Result.material:= Create_tile_material(tileType);
+  Result.tileContent.MaterialSource:= Result.material;
 
   Result.walkable:= tileType=TTileType.TTT_Floor;
-end;
-
-procedure Destroy_tile(tile_index: integer);
-begin
-  var x:= tile_index div tilecount_x;
-  var y:= tile_index mod tilecount_x;
-
-  var tile:= tiles[x,y];
-  tile.tileContent.Free;
-  tile.material.Free;
-  tile.Free;
-  tiles[x,y]:= nil;
-end;
-
-function Is_same_tiletype_as_selected(tile_index: integer): boolean;
-begin
-  var x:= tile_index div tilecount_x;
-  var y:= tile_index mod tilecount_x;
-  var existing_tile_type:= tiles[x,y].tileType;
-  var selected_tile_type:= TTileType.FromString(Form1.ComboBox1.Selected.Text);
-
-  result:= existing_tile_type = selected_tile_type;
 end;
 
 procedure TForm1.Generate_room;
