@@ -28,6 +28,10 @@ uses
   System.UIConsts, FMX.MaterialSources;
 
 type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
+TTileTypeHelper = record helper for TTileType
+  function ToString : string;
+  class function FromString(input:string) : TTileType; static;
+end;
 
 type TTile = class
   x,y: integer;
@@ -163,6 +167,28 @@ begin
   Result.walkable:= tileType=TTileType.TTT_Floor;
 end;
 
+procedure Destroy_tile(tile_index: integer);
+begin
+  var x:= tile_index div tilecount_x;
+  var y:= tile_index mod tilecount_x;
+
+  var tile:= tiles[x,y];
+  tile.tileContent.Free;
+  tile.material.Free;
+  tile.Free;
+  tiles[x,y]:= nil;
+end;
+
+function Is_same_tiletype_as_selected(tile_index: integer): boolean;
+begin
+  var x:= tile_index div tilecount_x;
+  var y:= tile_index mod tilecount_x;
+  var existing_tile_type:= tiles[x,y].tileType;
+  var selected_tile_type:= TTileType.FromString(Form1.ComboBox1.Selected.Text);
+
+  result:= existing_tile_type = selected_tile_type;
+end;
+
 procedure TForm1.Generate_room;
 begin
   tilecount_x:= round(SpinBox_room_size_x.Value);
@@ -230,8 +256,8 @@ end;
 
 procedure TForm1.ComboBox1Change(Sender: TObject);
 begin
-  var selected_tile_type:= ComboBox1.Selected.Text;
-  CheckBox_walkable.IsChecked:= selected_tile_type='Floor';
+  var selected_tile_type:= TTileType.FromString(ComboBox1.Selected.Text);
+  CheckBox_walkable.IsChecked:= selected_tile_type=TTileType.TTT_Floor;
 end;
 
 procedure TForm1.Move_camera(X,Y: single);
@@ -275,6 +301,26 @@ begin
   var new_position := Camera1.Position.Y - (WheelDelta / 100);
   if (new_position > 1) AND (new_position < 200) then
     Camera1.Position.Y := new_position;
+end;
+
+{ TTileTypeHelper }
+
+class function TTileTypeHelper.FromString(input:string): TTileType;
+begin
+  result:= TTileType.TTT_Emptytile;
+  if input='Floor' then
+    result:= TTileType.TTT_Floor;
+  if input='Wall' then
+    result:= TTileType.TTT_Wall;
+end;
+
+function TTileTypeHelper.ToString: string;
+begin
+  case self of
+    TTT_Emptytile:result:= 'EmptyTile';
+    TTT_Floor:    result:= 'Floor';
+    TTT_Wall:     result:= 'Wall';
+  end;
 end;
 
 end.
