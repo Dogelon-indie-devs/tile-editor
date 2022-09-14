@@ -27,6 +27,16 @@ uses
   FMX.ListBox,
   System.UIConsts, FMX.MaterialSources;
 
+type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
+
+type TTile = class
+  x,y: integer;
+  tileType: TTileType;
+  tileContent: TCustomMesh;
+  material: TColorMaterialSource;
+  walkable: boolean;
+end;
+
 type
   TForm1 = class(TForm)
     Panel1: TPanel;
@@ -42,7 +52,7 @@ type
     Light1: TLight;
     GroupBox2: TGroupBox;
     ComboBox1: TComboBox;
-    CheckBox1: TCheckBox;
+    CheckBox_walkable: TCheckBox;
     Label_last_tile: TLabel;
     ComboBox2: TComboBox;
     Edit_tile_color: TEdit;
@@ -58,6 +68,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
     procedure Button2Click(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
   private
     { Private declarations }
   public
@@ -65,20 +76,11 @@ type
     procedure Generate_room;
     procedure Move_camera(X,Y: single);
     procedure Apply_style_to_tile(Sender: TObject);
+    function Create_tile_object(tileType: TTileType): TCustomMesh;
+    function Create_tile_material(tileType: TTileType): TColorMaterialSource;
+    function Create_tile(tile_index: integer; tileType: TTileType): TTile;
   end;
 
-type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
-
-type TTile = class
-  x,y: integer;
-  tileType: TTileType;
-  tileContent: TCustomMesh;
-  material: TColorMaterialSource;
-  walkable: boolean;
-end;
-
-
-const grid_offset = 0.5;
 var
   Form1: TForm1;
   fDown: TPointF;
@@ -105,64 +107,70 @@ begin
   tile.material.Color:= StringToAlphaColor(Edit_tile_color.Text);
 end;
 
-procedure TForm1.Generate_room;
-var tile_index: integer;
-
-  function Create_tile(x,y: integer; tileType: TTileType): TTile;
-  begin
-    result:= TTile.Create;
-    result.x:= x;
-    Result.y:= y;
-    Result.tileType:= tileType;
-
-    case tileType of
-      TTT_Floor:Result.tileContent:= TPlane.Create(Viewport3D1);
-      TTT_Wall: Result.tileContent:= TCube. Create(Viewport3D1);
-      else exit;
-    end;
-
-    Result.tileContent.Position.X:= X;
-    Result.tileContent.Position.Y:= Y;
-    Result.tileContent.Position.Z:= 0;
-
-    Result.tileContent.Width:=  1;
-    Result.tileContent.Height:= 1;
-    case tileType of
-      TTT_Floor:Result.tileContent.Depth:= 0.001;
-      TTT_Wall: Result.tileContent.Depth:= 1;
-    end;
-
-    Result.tileContent.Scale.X:=  1;
-    Result.tileContent.Scale.Y:=  1;
-    Result.tileContent.Scale.Z:=  1;
-
-    Result.material:= TColorMaterialSource.Create(Result.tileContent);
-    case tileType of
-      TTT_Floor:Result.material.Color:= TAlphaColorRec.Blue;
-      TTT_Wall: Result.material.Color:= TAlphaColorRec.Gray;
-    end;
-
-    Result.tileContent.MaterialSource:= Result.material;
-    Result.tileContent.Opacity:= 1;
-    Result.tileContent.Visible:= true;
-    Result.tileContent.HitTest:= selecting_tiles;
-    Result.tileContent.Projection:= TProjection.Camera;
-    Result.tileContent.Parent:= Viewport3D1;
-    Result.tileContent.Name:= 'tile'+X.ToString+Y.ToString;
-    Result.tileContent.Tag:= tile_index;
-
-    Result.tileContent.OnClick:= Apply_style_to_tile;
-
-    Result.walkable:= tileType=TTileType.TTT_Floor;
+function TForm1.Create_tile_object(tileType: TTileType): TCustomMesh;
+begin
+  case tileType of
+    TTT_Floor:Result:= TPlane.Create(Viewport3D1);
+    TTT_Wall: Result:= TCube. Create(Viewport3D1);
+    else exit(nil);
   end;
 
+  Result.Width:=  1;
+  Result.Height:= 1;
+  case tileType of
+    TTT_Floor:Result.Depth:= 0.001;
+    TTT_Wall: Result.Depth:= 1;
+  end;
+
+  Result.Scale.X:=  1;
+  Result.Scale.Y:=  1;
+  Result.Scale.Z:=  1;
+
+  Result.Opacity:= 1;
+  Result.Visible:= true;
+  Result.HitTest:= selecting_tiles;
+  Result.Projection:= TProjection.Camera;
+  Result.Parent:= Viewport3D1;
+
+  Result.OnClick:= Apply_style_to_tile;
+end;
+
+function TForm1.Create_tile_material(tileType: TTileType): TColorMaterialSource;
+begin
+  Result:= TColorMaterialSource.Create(Viewport3D1);
+  case tileType of
+    TTT_Floor:Result.Color:= TAlphaColorRec.Blue;
+    TTT_Wall: Result.Color:= TAlphaColorRec.Gray;
+  end;
+end;
+
+function TForm1.Create_tile(tile_index: integer; tileType: TTileType): TTile;
+begin
+  result:= TTile.Create;
+  result.x:= tile_index div tilecount_x;
+  Result.y:= tile_index mod tilecount_x;
+  Result.tileType:= tileType;
+
+  Result.tileContent:= Create_tile_object(tileType);
+  Result.tileContent.Name:= 'tile'+result.X.ToString+result.Y.ToString;
+  Result.tileContent.Tag:= tile_index;
+
+  Result.tileContent.Position.X:= result.X;
+  Result.tileContent.Position.Y:= result.Y;
+  Result.tileContent.Position.Z:= 0;
+  Result.tileContent.MaterialSource:= Create_tile_material(tileType);
+
+  Result.walkable:= tileType=TTileType.TTT_Floor;
+end;
+
+procedure TForm1.Generate_room;
 begin
   tilecount_x:= round(SpinBox_room_size_x.Value);
   tilecount_y:= round(SpinBox_room_size_y.Value);
 
   SetLength(tiles,tilecount_x,tilecount_y);
 
-  tile_index:= 0;
+  var tile_index:= 0;
   for var x := 0 to tilecount_x-1 do
   for var y := 0 to tilecount_y-1 do
     begin
@@ -171,7 +179,7 @@ begin
       if isBorderTile then
         tileType:= TTT_Wall;
 
-      tiles[x,y]:= Create_tile(x,y,tileType);
+      tiles[x,y]:= Create_tile(tile_index,tileType);
       inc(tile_index);
     end;
 
@@ -218,6 +226,12 @@ procedure TForm1.ColorPicker1Click(Sender: TObject);
 begin
   var color := ColorPicker1.color;
   Edit_tile_color.Text := AlphaColorToString(color);
+end;
+
+procedure TForm1.ComboBox1Change(Sender: TObject);
+begin
+  var selected_tile_type:= ComboBox1.Selected.Text;
+  CheckBox_walkable.IsChecked:= selected_tile_type='Floor';
 end;
 
 procedure TForm1.Move_camera(X,Y: single);

@@ -89,8 +89,10 @@ object Form1: TForm1
         Size.Height = 22.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 38
+        OnChange = ComboBox1Change
       end
-      object CheckBox1: TCheckBox
+      object CheckBox_walkable: TCheckBox
+        IsChecked = True
         Position.X = 16.000000000000000000
         Position.Y = 49.000000000000000000
         TabOrder = 39
