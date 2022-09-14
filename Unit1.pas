@@ -54,11 +54,14 @@ type
     procedure ColorPicker1Click(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Switch1Switch(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
   private
     { Private declarations }
   public
     { Public declarations }
     procedure Generate_room;
+    procedure Move_camera(X,Y: single);
   end;
 
 type TTileType = (TTT_Emptytile, TTT_Floor, TTT_Wall);
@@ -146,6 +149,8 @@ begin
 
       tiles[x,y]:= Create_tile(x,y,tileType);
     end;
+
+  Viewport3D1.Repaint;
 end;
 
 procedure TForm1.Switch1Switch(Sender: TObject);
@@ -169,16 +174,45 @@ begin
   Edit_tile_color.Text := AlphaColorToString(color);
 end;
 
+procedure TForm1.Move_camera(X,Y: single);
+begin
+  Dummy1.Position.X:= Dummy1.Position.X + X;
+  Dummy1.Position.Y:= Dummy1.Position.Y - Y;
+end;
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+  Shift: TShiftState);
+begin
+  if lowercase(KeyChar)='w' then
+    Move_camera(0,0.1);
+  if lowercase(KeyChar)='a' then
+    Move_camera(-0.1,0);
+  if lowercase(KeyChar)='s' then
+    Move_camera(0,-0.1);
+  if lowercase(KeyChar)='d' then
+    Move_camera(0.1,0);
+end;
+
 procedure TForm1.Viewport3D1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
 begin
   if not selecting_tiles then
-    if ssRight in Shift then
-      with Dummy1 do
-        begin
-          RotationAngle.X := RotationAngle.X - (Y - fDown.Y);
-          RotationAngle.Y := RotationAngle.Y - (X - fDown.X);
-          fDown := PointF(X, Y);
-        end;
+    begin
+      if ssLeft in Shift then
+        with Dummy1 do
+          begin
+            Position.X := Position.X - (X - fDown.X);
+            Position.Y := Position.Y - (Y - fDown.Y);
+            fDown := PointF(X, Y);
+          end;
+
+      if ssRight in Shift then
+        with Dummy1 do
+          begin
+            RotationAngle.X := RotationAngle.X - (Y - fDown.Y);
+            RotationAngle.Y := RotationAngle.Y - (X - fDown.X);
+            fDown := PointF(X, Y);
+          end;
+    end;
 end;
 
 procedure TForm1.Viewport3D1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
