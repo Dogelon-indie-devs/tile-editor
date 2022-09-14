@@ -28,7 +28,7 @@ object Form1: TForm1
       Size.PlatformDefault = False
       Text = 'Room generator'
       TabOrder = 0
-      object SpinBox1: TSpinBox
+      object SpinBox_room_size_x: TSpinBox
         Touch.InteractiveGestures = [LongTap, DoubleTap]
         TabOrder = 39
         Cursor = crIBeam
@@ -49,8 +49,9 @@ object Form1: TForm1
         Size.PlatformDefault = False
         TabOrder = 40
         Text = 'Generate'
+        OnClick = Button1Click
       end
-      object SpinBox2: TSpinBox
+      object SpinBox_room_size_y: TSpinBox
         Touch.InteractiveGestures = [LongTap, DoubleTap]
         TabOrder = 38
         Cursor = crIBeam
@@ -135,6 +136,28 @@ object Form1: TForm1
         Size.PlatformDefault = False
       end
     end
+    object GroupBox3: TGroupBox
+      Align = Top
+      Position.Y = 289.000000000000000000
+      Size.Width = 200.000000000000000000
+      Size.Height = 64.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Mouse control'
+      TabOrder = 2
+      object Switch1: TSwitch
+        IsChecked = False
+        Position.X = 16.000000000000000000
+        Position.Y = 24.000000000000000000
+        TabOrder = 38
+        OnSwitch = Switch1Switch
+      end
+      object Label_camera: TLabel
+        Position.X = 102.000000000000000000
+        Position.Y = 28.000000000000000000
+        Text = 'Moving camera'
+        TabOrder = 39
+      end
+    end
   end
   object Viewport3D1: TViewport3D
     Align = Client
@@ -150,27 +173,13 @@ object Form1: TForm1
       Marks = 4.000000000000000000
       Frequency = 1.000000000000000000
       LineColor = x50505050
-      RotationAngle.X = 90.000000000000000000
+      Position.X = 0.500000000000000000
+      Position.Y = 0.500000000000000000
+      Position.Z = 0.500000000000000000
       Width = 20.000000000000000000
       Height = 20.000000000000000000
       Depth = 0.001000000047497451
       HitTest = False
-      Quanternion = '(0.70710676908493,0,0,0.70710676908493)'
-      object Dummy1: TDummy
-        Width = 1.000000000000000000
-        Height = 1.000000000000000000
-        Depth = 1.000000000000000000
-        object Camera1: TCamera
-          AngleOfView = 45.000000000000000000
-          Target = Dummy1
-          Position.Z = 7.000000000000000000
-          RotationAngle.X = 180.000000000000000000
-          Width = 1.000000000000000000
-          Height = 1.000000000000000000
-          Depth = 1.000000000000000000
-          Quanternion = '(0.999999940395355,0,0,0)'
-        end
-      end
     end
     object Light1: TLight
       Color = claWhite
@@ -181,6 +190,19 @@ object Form1: TForm1
       Width = 1.000000000000000000
       Height = 1.000000000000000000
       Depth = 1.000000000000000000
+    end
+    object Dummy1: TDummy
+      Width = 1.000000000000000000
+      Height = 1.000000000000000000
+      Depth = 1.000000000000000000
+      object Camera1: TCamera
+        AngleOfView = 45.000000000000000000
+        Target = Dummy1
+        Position.Z = -10.000000000000000000
+        Width = 1.000000000000000000
+        Height = 1.000000000000000000
+        Depth = 1.000000000000000000
+      end
     end
   end
 end
