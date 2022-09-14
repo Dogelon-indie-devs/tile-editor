@@ -70,6 +70,7 @@ type
     Button_save: TButton;
     Button_load: TButton;
     SaveDialog1: TSaveDialog;
+    OpenDialog1: TOpenDialog;
     procedure Viewport3D1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure Viewport3D1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
     procedure ColorPicker1Click(Sender: TObject);
@@ -80,6 +81,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure Button_saveClick(Sender: TObject);
+    procedure Button_loadClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -90,6 +92,7 @@ type
     function Create_tile_object(tileType: TTileType): TCustomMesh;
     function Create_tile_material(tileType: TTileType): TColorMaterialSource;
     function Create_tile(tile_index: integer; tileType: TTileType): TTile;
+    procedure Import_layout_as_json(json:string);
   end;
 
 var
@@ -296,11 +299,27 @@ begin
   end;
 end;
 
+function FileToString(filename: string): string;
+var
+  work: TStringList;
+begin
+  work := TStringList.Create;
+  try
+    work.LoadFromFile(filename);
+    result := work.Text;
+  finally
+    work.Free;
+  end;
+end;
+
 function Export_layout_as_json: string;
 begin
   var JSONObject := TJSONObject.Create;
   try
     JSONObject.AddPair('RoomName','Lounge');
+    JSONObject.AddPair('tilecount_x',tilecount_x.ToString);
+    JSONObject.AddPair('tilecount_y',tilecount_y.ToString);
+
     var DataArray := TJSONArray.Create;
     for var x := 0 to tilecount_x-1 do
     for var y := 0 to tilecount_y-1 do
@@ -320,6 +339,48 @@ begin
     result:= JSONObject.ToString;
     JSONObject.Free;
   end;
+end;
+
+procedure TForm1.Import_layout_as_json(json:string);
+begin
+  var JSONObject := TJSONObject.Create;
+  try
+    //var room_name:=   JSONObject.GetValue('RoomName');
+    var tilecount_x:= JSONObject.GetValue<Integer>('tilecount_x');
+    var tilecount_y:= JSONObject.GetValue<Integer>('tilecount_y');
+
+    SetLength(tiles,tilecount_x,tilecount_y);
+    var tile_index:= 0;
+
+    var TilesArray := JSONObject.GetValue<TJSONArray>('tiles');
+    for var JsonTile in TilesArray do
+      begin
+        var X:= JsonTile.GetValue<Integer>('X');
+        var Y:= JsonTile.GetValue<Integer>('Y');
+        var tileType:= TTileType.FromString( JsonTile.GetValue<String>('tileType') );
+        var materialColor:= StringToAlphaColor(JsonTile.GetValue<String>('materialColor') );
+        var walkable:= JsonTile.GetValue<Boolean>('walkable');
+
+        tiles[x,y]:= Create_tile(tile_index,tileType);
+        Recolor_material(tiles[x,y].material,materialColor);
+        tiles[x,y].walkable:= walkable;
+
+        inc(tile_index);
+      end;
+
+  finally
+    JSONObject.Free;
+  end;
+
+  Viewport3D1.Repaint;
+end;
+
+procedure TForm1.Button_loadClick(Sender: TObject);
+begin
+  OpenDialog1.InitialDir:= GetCurrentDir;
+  if not OpenDialog1.Execute then exit;
+  var json:= FileToString('room_lounge.json');
+  Import_layout_as_json(json);
 end;
 
 procedure TForm1.Button_saveClick(Sender: TObject);

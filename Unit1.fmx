@@ -31,7 +31,7 @@ object Form1: TForm1
       TabOrder = 0
       object SpinBox_room_size_x: TSpinBox
         Touch.InteractiveGestures = [LongTap, DoubleTap]
-        TabOrder = 39
+        TabOrder = 38
         Cursor = crIBeam
         DecimalDigits = 0
         Min = 4.000000000000000000
@@ -48,13 +48,13 @@ object Form1: TForm1
         Size.Width = 162.000000000000000000
         Size.Height = 22.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 40
+        TabOrder = 39
         Text = 'Generate'
         OnClick = Button1Click
       end
       object SpinBox_room_size_y: TSpinBox
         Touch.InteractiveGestures = [LongTap, DoubleTap]
-        TabOrder = 38
+        TabOrder = 37
         Cursor = crIBeam
         DecimalDigits = 0
         Min = 4.000000000000000000
@@ -68,15 +68,16 @@ object Form1: TForm1
       object Button_save: TButton
         Position.X = 16.000000000000000000
         Position.Y = 80.000000000000000000
-        TabOrder = 42
+        TabOrder = 41
         Text = 'Save'
         OnClick = Button_saveClick
       end
       object Button_load: TButton
         Position.X = 96.000000000000000000
         Position.Y = 80.000000000000000000
-        TabOrder = 41
+        TabOrder = 40
         Text = 'Load'
+        OnClick = Button_loadClick
       end
     end
     object GroupBox2: TGroupBox
@@ -101,21 +102,21 @@ object Form1: TForm1
         Size.Width = 121.000000000000000000
         Size.Height = 22.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 38
+        TabOrder = 37
         OnChange = ComboBox1Change
       end
       object CheckBox_walkable: TCheckBox
         IsChecked = True
         Position.X = 16.000000000000000000
         Position.Y = 49.000000000000000000
-        TabOrder = 39
+        TabOrder = 38
         Text = 'Walkable'
       end
       object Label_last_tile: TLabel
         Position.X = 16.000000000000000000
         Position.Y = 24.000000000000000000
         Text = 'Last tile X=0, Y=0'
-        TabOrder = 40
+        TabOrder = 39
       end
       object ComboBox2: TComboBox
         Items.Strings = (
@@ -131,7 +132,7 @@ object Form1: TForm1
         Size.Width = 121.000000000000000000
         Size.Height = 22.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 41
+        TabOrder = 40
       end
       object ColorPicker1: TColorPicker
         Position.X = 160.000000000000000000
@@ -139,12 +140,12 @@ object Form1: TForm1
         Size.Width = 18.000000000000000000
         Size.Height = 137.000000000000000000
         Size.PlatformDefault = False
-        TabOrder = 42
+        TabOrder = 41
         OnClick = ColorPicker1Click
       end
       object Edit_tile_color: TEdit
         Touch.InteractiveGestures = [LongTap, DoubleTap]
-        TabOrder = 43
+        TabOrder = 42
         Position.X = 16.000000000000000000
         Position.Y = 136.000000000000000000
         Size.Width = 121.000000000000000000
@@ -164,19 +165,19 @@ object Form1: TForm1
         IsChecked = False
         Position.X = 16.000000000000000000
         Position.Y = 24.000000000000000000
-        TabOrder = 38
+        TabOrder = 37
         OnSwitch = Switch1Switch
       end
       object Label_camera: TLabel
         Position.X = 102.000000000000000000
         Position.Y = 28.000000000000000000
         Text = 'Moving camera'
-        TabOrder = 39
+        TabOrder = 38
       end
       object Button2: TButton
         Position.X = 16.000000000000000000
         Position.Y = 58.000000000000000000
-        TabOrder = 40
+        TabOrder = 39
         Text = 'Reset camera'
         OnClick = Button2Click
       end
@@ -233,6 +234,11 @@ object Form1: TForm1
     FileName = 'room_lounge'
     Title = 'Save the room schematic'
     Left = 640
+    Top = 424
+  end
+  object OpenDialog1: TOpenDialog
+    DefaultExt = 'json'
+    Left = 728
     Top = 424
   end
 end
