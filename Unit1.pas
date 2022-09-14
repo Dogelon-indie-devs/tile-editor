@@ -317,8 +317,8 @@ begin
   var JSONObject := TJSONObject.Create;
   try
     JSONObject.AddPair('RoomName','Lounge');
-    JSONObject.AddPair('tilecount_x',tilecount_x.ToString);
-    JSONObject.AddPair('tilecount_y',tilecount_y.ToString);
+    JSONObject.AddPair('tilecount_x',tilecount_x);
+    JSONObject.AddPair('tilecount_y',tilecount_y);
 
     var DataArray := TJSONArray.Create;
     for var x := 0 to tilecount_x-1 do
@@ -326,8 +326,8 @@ begin
       begin
         var tile:= tiles[x,y];
         var DataObject := TJSONObject.Create;
-        DataObject.AddPair('X', tile.x.ToString);
-        DataObject.AddPair('Y', tile.y.ToString);
+        DataObject.AddPair('X', tile.x);
+        DataObject.AddPair('Y', tile.y);
         DataObject.AddPair('tileType', tile.tileType.ToString);
         DataObject.AddPair('materialColor', AlphaColorToString(tile.material.Color));
         DataObject.AddPair('walkable', tile.walkable.ToString);
@@ -343,11 +343,11 @@ end;
 
 procedure TForm1.Import_layout_as_json(json:string);
 begin
-  var JSONObject := TJSONObject.Create;
+  var JSONObject := TJSONObject.ParseJSONValue(json);
   try
-    //var room_name:=   JSONObject.GetValue('RoomName');
-    var tilecount_x:= JSONObject.GetValue<Integer>('tilecount_x');
-    var tilecount_y:= JSONObject.GetValue<Integer>('tilecount_y');
+    var room_name:=   JSONObject.GetValue<String>('RoomName');
+    tilecount_x:= JSONObject.GetValue<Integer>('tilecount_x');
+    tilecount_y:= JSONObject.GetValue<Integer>('tilecount_y');
 
     SetLength(tiles,tilecount_x,tilecount_y);
     var tile_index:= 0;
@@ -372,6 +372,8 @@ begin
     JSONObject.Free;
   end;
 
+  Dummy1.Position.X:= round(tilecount_x/2);
+  Dummy1.Position.Y:= round(tilecount_y/2);
   Viewport3D1.Repaint;
 end;
 
@@ -379,7 +381,7 @@ procedure TForm1.Button_loadClick(Sender: TObject);
 begin
   OpenDialog1.InitialDir:= GetCurrentDir;
   if not OpenDialog1.Execute then exit;
-  var json:= FileToString('room_lounge.json');
+  var json:= FileToString(OpenDialog1.FileName);
   Import_layout_as_json(json);
 end;
 
